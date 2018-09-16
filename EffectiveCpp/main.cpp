@@ -86,10 +86,10 @@ private:
 	int id;
 };
 
-class ABEntry {
+class Item04_class {
 public:
 	// 赋值
-	ABEntry(const std::string& name, const std::string& address, const std::vector<PhoneNumber>& phones) {
+	Item04_class(const std::string& name, const std::string& address, const std::vector<PhoneNumber>& phones) {
 		theName = name;
 		theAddress = address;
 		thePhones = phones;
@@ -97,7 +97,7 @@ public:
 	}
 
 	// 初始化
-	ABEntry(const std::string& name, const std::string& address, const std::vector<PhoneNumber>& phones, int times)
+	Item04_class(const std::string& name, const std::string& address, const std::vector<PhoneNumber>& phones, int times)
 		:theName(name), theAddress(address), thePhones(phones), numTimesConsulted(times) {  }
 private:
 	std::string theName;
@@ -106,24 +106,51 @@ private:
 	int numTimesConsulted;
 };
 
-void ABE_ctr_copy() {
+void Item04_class_copy() {
 	PhoneNumber p1 = PhoneNumber(1, 1);
 	PhoneNumber p2 = PhoneNumber(1, 1);
 
 	vector<PhoneNumber> vp = { p1, p2 };
-	ABEntry(string("goricher"), string("hz"), vp);
+	Item04_class(string("goricher"), string("hz"), vp);
 }
 
-void ABE_ctr_init() {
+void Item04_class_init() {
 	PhoneNumber p1 = PhoneNumber(1, 1);
 	PhoneNumber p2 = PhoneNumber(1, 1);
 
 	vector<PhoneNumber> vp = { p1, p2 };
-	ABEntry(string("goricher"), string("hz"), vp, 0);
+	Item04_class(string("goricher"), string("hz"), vp, 0);
 }
+
+// Item 05
+class Item05_class {
+	// 下列函数在为主动定义时, 会自动生成
+
+	// Item05_class() { ... }										// default构造函数
+	// Item05_class(const Item05_class& i5) { ... }					// copy构造函数
+	// ~Item05_class() { ... }										// 析构函数
+	// Item05_class& operator=(const Item05_class& i5){ ... }		// copy assignment运算符
+
+};
+
+// Item 06
+class Item06_class {
+public:
+	Item06_class() {}
+	~Item06_class() {}
+	
+	// cpp 11 的用法
+	Item06_class(const Item06_class& i6) = delete;
+	Item06_class& operator=(const Item06_class& i6) = delete;
+private:
+	// 与上述定义成=delete效果雷同
+	// Item06_class(const Item06_class& i6);
+	// Item06_class& operator=(const Item06_class& i6);
+};
+
 
 int main() {
-	time_test(ABE_ctr_copy, ABE_ctr_init);
+	
 	
  	getchar();
 }
