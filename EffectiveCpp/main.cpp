@@ -122,6 +122,11 @@ void Item04_class_init() {
 	Item04_class(string("goricher"), string("hz"), vp, 0);
 }
 
+void Item04_test_1() {
+	// 对比拷贝和初始化时间的花费
+	time_test(Item04_class_copy, Item04_class_init);
+}
+
 // Item 05
 class Item05_class {
 	// 下列函数在为主动定义时, 会自动生成
@@ -148,9 +153,141 @@ private:
 	// Item06_class& operator=(const Item06_class& i6);
 };
 
+// Item 07
+class Item07_base_class {
+public:
+	Item07_base_class() {}
+	virtual ~Item07_base_class() {
+		cout << "delete base" << endl;
+	}
+};
+
+class Item07_derived_class :public Item07_base_class {
+public:
+	Item07_derived_class() {}
+	virtual ~Item07_derived_class() {
+		cout << "delete derived" << endl;
+	}
+};
+
+void Item07_test_1() {
+	Item07_base_class* i7 = new Item07_derived_class();
+	delete i7;
+}
+
+// Item 08
+class Item08_class {
+public:
+
+	static Item08_class create() {
+		Item08_class i8 = Item08_class();
+		return i8;
+	}
+
+	void close() {}
+};
+
+class Item08_controll_class {
+public:
+	Item08_controll_class() {
+		i8 = Item08_class::create();
+	}
+	~Item08_controll_class() {
+		//i8.close();
+		//try {
+		//	i8.close();
+		//}
+		//catch (exception e) {
+		//	// 不调用任何清理工作, 直接结束程序
+		//	// 不是较佳的策略
+		//	// std::abort();
+		//}
+
+		// 较佳策略
+		if (!closed) {
+			try {
+				i8.close();
+			}
+			catch (exception e) {
+				// ...
+			}
+
+		}
+	}
+
+	// 将责任丢给类的客户, 析构函数则属于第二重保险
+	void close() {
+		i8.close();
+		closed = true;
+	}
+private:
+	Item08_class i8;
+	bool closed;
+};
+
+void Item08_test() {
+	Item08_controll_class i8_con = Item08_controll_class();
+}
+
+// Item 09
+class Item09_base_class {
+public:
+	Item09_base_class() {
+		// 报错
+		// 在创建i9_1对象时, 会先调用base_class的构造函数
+		// 此时在这里调用log, 还未下降到derived_class的层次, 会调用纯虚函数
+		log();
+	}
+
+	~Item09_base_class() {
+		log();
+	}
+
+	virtual void log() const {
+		cout << 0;
+	}
+};
+
+class Item09_derived_class_1 :public Item09_base_class {
+public:
+	Item09_derived_class_1() {
+		log();
+	}
+
+	~Item09_derived_class_1() {
+		log();
+	}
+
+	virtual void log() const{
+		cout << 1;
+	}
+};
+
+class Item09_derived_class_2 :public Item09_base_class {
+public:
+	Item09_derived_class_2() {
+		log();
+	}
+
+	~Item09_derived_class_2() {
+		log();
+	}
+
+	virtual void log() const {
+		cout << 2;
+	}
+};
+
+void Item09_test() {
+	Item09_derived_class_1 i9_1;
+	
+}
+
 
 int main() {
+	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
+	Item09_test();
 	
-	
+
  	getchar();
 }
