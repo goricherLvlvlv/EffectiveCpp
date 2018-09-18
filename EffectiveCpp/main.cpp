@@ -283,11 +283,90 @@ void Item09_test() {
 	
 }
 
+// Item 10
+class Item10_class {
+public:
+	Item10_class() :val(0) {}
+	Item10_class(int v) :val(v) {}
+	// 协议, 返回*this的reference
+	Item10_class& operator+=(const Item10_class& i10) {
+		val += i10.val;
+		return *this;
+	}
+	Item10_class& operator=(const Item10_class& i10) {
+		val = i10.val;
+		return *this;
+	}
+	Item10_class& operator=(int rhs) {
+		val = rhs;
+		return *this;
+	}
+private:
+	int val;
+};
+
+// Item 11
+class Item11_class {
+public:
+	void swap(const Item11_class& rhs) {
+		// 交换*this与rhs的内容
+		// Item 29这里暂时不详细写
+	}
+
+	Item11_class & operator=(const Item11_class& rhs) {
+
+		// 但是这种做法要是有危险, 一旦new int出现异常, 则会返回一个指向已删除内存的指针
+		// C++11中可以使用pint = nullptr;来规避上述的问题, 下面有不需要利用nullptr的写法
+		/*if (this == &rhs) return *this;
+
+		delete pint;
+		pint = new int(*rhs.pint);
+		return *this;*/
+		
+		// 更好的方法
+		// 即使new出现异常, 那么pint的内存依旧保存着
+		auto tmp = pint;
+		pint = new int(*rhs.pint);
+		delete tmp;
+		return *this;
+
+		// 另外的方法
+		// 调用swap, 让编译器自动去清理内存
+	}
+private:
+	int* pint;
+};
+
+// Item 12
+class Item12_base_class {
+public:
+	Item12_base_class(const Item12_base_class& i12_b) :base(i12_b.base) {}
+	Item12_base_class& operator=(const Item12_base_class& i12_b) {
+		base = i12_b.base;
+		return *this;
+	}
+private:
+	int base;
+};
+
+class Item12_derived_class :public Item12_base_class {
+public:
+	Item12_derived_class(const Item12_derived_class& i12_d) :Item12_base_class(i12_d), derived(i12_d.derived) {}
+	Item12_derived_class& operator=(const Item12_derived_class& i12_d) {
+		Item12_base_class::operator=(i12_d);
+		derived = i12_d.derived;
+		return *this;
+	}
+private:
+	int derived;
+};
+
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item09_test();
-	
+	Item10_class i10(5);
+	Item10_class i10_2;
+	i10_2 = i10;
 
  	getchar();
 }
