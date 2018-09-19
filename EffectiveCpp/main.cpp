@@ -361,12 +361,45 @@ private:
 	int derived;
 };
 
+// Item 13
+class Item13_class {
+
+};
+
+void Item13_test() {
+	int *p;
+	{
+		shared_ptr<int> sp(new int(5));
+		p = sp.get();
+	}
+	cout << *p;
+}
+
+// Item 14
+class Mutex {
+
+};
+void lock(Mutex* m) {}
+void unlock(Mutex* m) {}
+class Item14_class {
+public:
+	explicit Item14_class(Mutex* m) :mutexPtr(m, unlock) {
+		lock(mutexPtr.get());
+	}
+	
+private:
+	shared_ptr<Mutex> mutexPtr;
+};
+
+// Item 15
+class Item15_class {
+	// APIs往往要求访问原始资源. 所以每个RAII class应该提供一个get方法.
+};
+
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item10_class i10(5);
-	Item10_class i10_2;
-	i10_2 = i10;
+	
 
  	getchar();
 }
