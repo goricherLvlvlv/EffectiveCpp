@@ -396,10 +396,113 @@ class Item15_class {
 	// APIs往往要求访问原始资源. 所以每个RAII class应该提供一个get方法.
 };
 
+// Item 18
+struct year {
+	int val;
+	explicit year(int y) :val(y) {}
+};
+class month {
+public:
+	// 以static函数替代构造函数, 保证不出现超过1-12范围的月份
+	static month Jan() { return month(1); }
+	static month Feb() { return month(2); }
+	static month Mar() { return month(3); }
+	static month Apr() { return month(4); }
+	static month May() { return month(5); }
+	static month Jun() { return month(6); }
+	static month Jul() { return month(7); }
+	static month Aug() { return month(8); }
+	static month Sept() { return month(9); }
+	static month Oct() { return month(10); }
+	static month Nov() { return month(11); }
+	static month Dec() { return month(12); }
+private:
+	int val;
+	explicit month(int m) :val(m) {}
+};
+struct day {
+	int val;
+	explicit day(int d) :val(d) {}
+};
+class Item18_class {
+public:
+	Item18_class(const year& y, const month& m, const day& d) :y(y), m(m), d(d) {
+		
+	}
+private:
+	year y;
+	month m;
+	day d;
+};
+
+// Item 20
+class Item20_class {
+public:
+	Item20_class() :name(""), id(0) {
+		cout << "default construct" << endl;
+	}
+	Item20_class(const Item20_class& i20) :name(i20.name), id(i20.id) {
+		cout << "copy construct" << endl;
+	}
+	~Item20_class() {
+		cout << "default deconstruct" << endl;
+	}
+private:
+	string name;
+	int id;
+};
+void Item20_test(Item20_class i20) {}
+void Item20_func() {
+	Item20_class i20_1 = Item20_class();
+	Item20_class i20_2(i20_1);
+	// 调用copy
+	Item20_test(i20_2);
+}
+
+// Item 21
+class Item21_class {
+public:
+	Item21_class(int numerator = 0, int denumerator = 1) :n(numerator), d(denumerator) {
+
+	}
+	~Item21_class(){
+		cout << "deconstruct" << endl;
+	}
+
+	int n, d;
+	friend const Item21_class& operator*(const Item21_class& lhs, const Item21_class& rhs);
+};
+// 返回引用必须创建对象, 这样并不能规避构造函数的调用
+const Item21_class& operator*(const Item21_class& lhs, const Item21_class& rhs) {
+	// 糟糕的实现 stack
+	// 返回了一个局部变量的地址
+	Item21_class res(lhs.n*rhs.n, lhs.d*rhs.d);
+	return res;// 调用析构函数
+
+	// 更糟糕的实现 heap
+	// 内存泄漏
+	// w = x*y*z;时需要两次delete, 而并没有办法进行2次delete
+	/*Item21_class* res = new Item21_class(lhs.n*rhs.n, lhs.d*rhs.d);
+	return *res;*/
+
+	
+}
+
+void Item21_func() {
+	Item21_class a(1, 2); // 1/2
+	Item21_class b(3, 5); // 3/5
+
+	Item21_class c = a * b; // 3/10
+
+	c.n = 5;
+	cout << c.n << endl << c.d << endl;
+}
+
+
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
+	Item21_func();
 	
-
  	getchar();
 }
