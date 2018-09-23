@@ -498,6 +498,36 @@ void Item21_func() {
 	cout << c.n << endl << c.d << endl;
 }
 
+// Item 24
+class Item24_class {
+public:
+	// 非explicit
+	Item24_class(int n = 0, int d = 1) :n(n), d(d) {
+
+	}
+
+	inline int num() const{
+		return n;
+	}
+
+	inline int denum() const{
+		return d;
+	}
+
+	//const Item24_class operator*(const Item24_class& i24) const {
+	//	// i24 * 2 ---- 正确
+	//	// 2 * i24 ---- 错误
+	//	return Item24_class(this->n * i24.n, this->d * i24.d);
+	//}
+private:
+	int n, d;
+};
+// i24 * 2 ---- 正确
+// 2 * i24 ---- 正确
+const Item24_class operator*(const Item24_class& i24_1, const Item24_class& i24_2) {
+	return Item24_class(i24_1.num() * i24_1.num(), i24_2.denum() * i24_2.denum());
+}
+
 
 
 int main() {
