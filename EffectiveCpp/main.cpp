@@ -528,11 +528,81 @@ const Item24_class operator*(const Item24_class& i24_1, const Item24_class& i24_
 	return Item24_class(i24_1.num() * i24_1.num(), i24_2.denum() * i24_2.denum());
 }
 
+// Item 25
+class Item25_class_impl {
+public:
+private:
+
+};
+
+class Item25_class {
+public:
+	Item25_class(const Item25_class& rhs) {
+		
+	}
+
+	Item25_class& operator=(const Item25_class& rhs) {
+		*i25_impl = *(rhs.i25_impl);
+	}
+
+	void swap(Item25_class& other) {
+		std::swap(this->i25_impl, other.i25_impl);
+	}
+private:
+	Item25_class_impl * i25_impl;
+};
+
+
+
+// 特例化
+namespace std {
+	template<>
+	void swap<Item25_class>(Item25_class& i25_1, Item25_class& i25_2) {
+		// pimpl是私有成员, 我们成立一个member函数来调用私有成员.
+		i25_1.swap(i25_2);
+	}
+}
+
+// Item 27
+class Item27_base_base_class {};
+class Item27_base_class:public Item27_base_base_class {
+public:
+	virtual void print() {
+		key = 7;
+		cout << "window key: " << key << endl;
+		
+	}
+
+	int key;
+};
+class Item27_derived_class:public Item27_base_class {
+public:
+	virtual void print() {
+		// window key: 7
+		// derived key : -858993460
+		// 实际上调用的print对key的修改并不是对该derived类的key进行修改, 而是当前对象的base class部分的副本进行修改
+		static_cast<Item27_base_class>(*this).print();
+		cout << "derived key: " << key << endl;
+	}
+};
+void Item27_func() {
+	Item27_derived_class d;
+	Item27_base_class* pb = &d;
+	Item27_derived_class* pd = &d;
+	// 没检测出offset, 可能这里运行时已经添加上了
+	cout << "pb: " << pb << endl << "pd: " << pd << endl;
+
+	
+	
+	// 可以直接显示调用base的函数
+	pd->Item27_base_class::print();
+	cout << pd->key;
+}
 
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item21_func();
+	Item27_func();
 	
  	getchar();
 }
