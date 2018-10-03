@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ctime>
 #include <functional>
+#include <memory>
 #include "calc_time.h"
 
 using namespace std;
@@ -599,10 +600,139 @@ void Item27_func() {
 	cout << pd->key;
 }
 
+// Item 28
+class Item28_point {
+public:
+	Item28_point(int x, int y) :x(x), y(y) {
+		
+	}
+	void setX(int newVal) {
+		x = newVal;
+	}
+	void setY(int newVal) {
+		y = newVal;
+	}
+private:
+	int x;
+	int y;
+};
+
+class Item28_RectData {
+public:
+	Item28_point u_lh_c;
+	Item28_point l_rh_c;
+};
+
+class Item28_Rectangle {
+public:
+	// 加上const, 避免返回的点可以被用户直接修改
+	// 但是当用户创建一个临时rectangle对象时, 可能会导致下面函数的返回值产生空吊指针
+	const Item28_point& upperLeft() const { return data->u_lh_c; }
+	const Item28_point& lowerRight() const { return data->l_rh_c; }
+private:
+	shared_ptr<Item28_RectData> data;
+};
+
+// Item 31
+class Item31_date {};
+class Item31_address {};
+
+class Item31_person {
+public:
+	virtual ~Item31_person() {}
+	virtual string name() const = 0;
+	virtual string birthDate() const = 0;
+	virtual string address() const = 0;
+	static shared_ptr<Item31_person> create(const string& name, const Item31_date& date, const Item31_address& address);
+private:
+
+};
+
+class Item31_real_person:public Item31_person {
+public:
+	Item31_real_person(const string& name, const Item31_date& birthday, const Item31_address& addr) :theName(name), theBirth(birthday), theAddr(addr) {  }
+	virtual ~Item31_real_person() {}
+	string name() const {
+		return "name";
+	}
+	string birthDate() const {
+		return "birthday";
+	}
+	string address() const {
+		return "address";
+	}
+private:
+	string theName;
+	Item31_date theBirth;
+	Item31_address theAddr;
+};
+
+// factory函数实现
+shared_ptr<Item31_person> Item31_person::create(const string& name, const Item31_date& date, const Item31_address& address) {
+	return shared_ptr<Item31_person>(new Item31_real_person(name, date, address));
+}
+
+void Item31_func() {
+	string name = "goricher";
+	Item31_date birth;
+	Item31_address addr;
+
+	shared_ptr<Item31_person> ptr(Item31_person::create(name, birth, addr));
+	cout << ptr->name() << endl << ptr->birthDate() << endl << ptr->address() << endl;
+}
+
+// Item 33
+class Item33_base_class {
+public:
+	virtual void mf1() = 0;
+	virtual void mf1(int) { cout << "base::mf1(int)" << endl; }
+	virtual void mf2() { cout << "base::mf2()" << endl; }
+	virtual void mf3() { cout << "base::mf3()" << endl; }
+	virtual void mf3(double) { cout << "base::mf3(double)" << endl; }
+private:
+	int x;
+};
+
+class Item33_derived_class : public Item33_base_class {
+public:
+	// 显示声明, 令base中的mf1与mf3在derived作用域中可见, 防止被覆盖
+	using Item33_base_class::mf1;
+	using Item33_base_class::mf3;
+
+	virtual void mf1() { cout << "derived::mf1()" << endl; }
+	void mf3() { cout << "derived::mf3()" << endl; }
+	void mf4() { cout << "derived::mf4()" << endl; }
+};
+
+class Item33_derived_2_class : private Item33_base_class {
+public:
+	virtual void mf1() {
+		// inline转交函数
+		// 隐式声明为inline, 转交由base直接调用函数
+		Item33_base_class::mf1(1);
+	}
+};
+
+void Item33_func() {
+	Item33_derived_class d;
+	d.mf1();					// derived mf1()
+	d.mf1(1);					// base mf1(int)
+	d.mf3();					// derived mf3()
+	d.mf3(1.1);					// base mf3(double)
+	d.mf4();					// derived mf4()
+
+	Item33_derived_2_class d2;
+	d2.mf1();
+	//d2.mf2();					// private继承不能使用
+	//d2.mf3();
+}
+
+
+
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item27_func();
+	Item33_func();
 	
  	getchar();
 }
