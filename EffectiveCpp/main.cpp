@@ -819,12 +819,121 @@ public:
 	explicit Item35_player_2(HealthCalcFunc hcf = defaultHealthCalc) :Item35_character_2(hcf) {}
 };
 
+// Item 37
+class Item37_shape {
+public:
+	enum color { RED, GREEN, BLUE };
+	virtual void whatColor(color c = RED) {
+		switch (c){
+		case Item37_shape::RED:cout << "RED" << endl;
+			break;
+		case Item37_shape::GREEN:cout << "GREEN" << endl;
+			break;
+		case Item37_shape::BLUE:cout << "BLUE" << endl;
+			break;
+		default:
+			break;
+		}
+	}
+};
 
+class Item37_rectangle :public Item37_shape {
+	virtual void whatColor(color c = GREEN) {
+		switch (c) {
+		case Item37_shape::RED:cout << "RED" << endl;
+			break;
+		case Item37_shape::GREEN:cout << "GREEN" << endl;
+			break;
+		case Item37_shape::BLUE:cout << "BLUE" << endl;
+			break;
+		default:
+			break;
+		}
+	}
+};
+
+void Item37_func() {
+	Item37_rectangle i37_rect = Item37_rectangle();
+
+	// 打印出RED, 默认参数是静态绑定的
+	// 这是编译器为了运行期的效率考虑的, 如果需要动态绑定default参数, 则在运行期会有更大的开销
+	Item37_shape* p = &i37_rect;
+	p->whatColor();		
+}
+
+// Item 38
+
+// has-a 结构
+class Item38_address {};
+class Item38_phone_number {};
+class Item38_person {
+public:
+private:
+	string name;
+	Item38_address addr;
+	Item38_phone_number pn;
+};
+
+// is-implemented-in-terms-of 根据某物实现出
+// 根据list实现set
+template<class T>
+class Item38_set {
+public:
+	bool member(const T& item) const;
+	void insert(const T& item);
+	void remove(const T& item);
+	size_t size() const;
+private:
+	list<T> rep;
+};
+
+template<class T>
+bool Item38_set<T>::member(const T& item) const {
+	return std::find(rep.begin(), rep.end(), item) != rep.end();
+}
+
+template<class T>
+void Item38_set<T>::insert(const T& item) {
+	if (member(item) == false)
+		rep.push_back(item);
+}
+
+template<class T>
+void Item38_set<T>::remove(const T& item) {
+	// Item42 对typename进行讨论
+	typename list<T>::iterator it = std::find(rep.begin(), rep.end(), item);
+
+	if (it != rep.end())
+		rep.erase(it);
+}
+
+template<class T>
+size_t Item38_set<T>::size() const{
+	return rep.size();
+}
+
+// Item 39
+class Item39_empty {};
+class Item39_test1 :public Item39_empty {
+private:
+	int x;
+};
+
+class Item39_test2 :private Item39_empty {
+private:
+	int x;
+};
+
+void Item39_func() {
+	// 相等 4
+	cout << "public inherit: " << sizeof(Item39_test1) << endl;
+	cout << "private inherit: " << sizeof(Item39_test2) << endl;
+}
 
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item35_func();
+	Item39_func();
 	
  	getchar();
 }
