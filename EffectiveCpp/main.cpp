@@ -727,12 +727,104 @@ void Item33_func() {
 	//d2.mf3();
 }
 
+// Item 34
+class Item34_shape {
+public:
+	// pure virtual function
+	// 但可以实现定义, 需要显示调用
+	virtual void draw() const = 0;
+	// impure virtual function
+	virtual void error(const string& msg) {}
+	int objectID() const {}
+};
+
+// 矩形
+class Item34_rectangle :public Item34_shape {
+	void draw() const {}
+	void error(const string& msg) {}
+};
+// 椭圆
+class Item34_ellipse :public Item34_shape {
+	void draw() const {}
+	void error(const string& msg) {}
+};
+
+// Item 35
+
+// Template Method模式
+class Item35_character {
+public:
+	// 派生类会调用自己的虚函数
+	// non-virtual interface ==> NVI
+	int healthValue() const { return doHealthValue(); }
+
+	Item35_character() {}
+	Item35_character(int val) :health(val) {}
+private:
+	virtual int doHealthValue() const { 
+		cout << "Item35_character" << endl;
+		return health; 
+	}
+	int health;
+};
+
+class Item35_player:public Item35_character {
+public:
+	Item35_player(int val) :health(val) {}
+private:
+	virtual int doHealthValue() const {
+		cout << "Item35_player" << endl;
+		return health;
+	}
+	int health;
+};
+class Item35_monster:public Item35_character {
+public:
+	Item35_monster(int val) :health(val) {}
+private:
+	virtual int doHealthValue() const {
+		cout << "Item35_monster" << endl;
+		return health;
+	}
+	int health;
+};
+
+void Item35_func() {
+	Item35_character* p1 = new Item35_player(1);
+	Item35_character p2(2);
+
+	p1->healthValue();
+	p2.healthValue();
+}
+
+// Strategy模式
+class Item35_character_2;
+int defaultHealthCalc(const Item35_character_2& gc) { return 1; }
+class Item35_character_2 {
+public:
+	// 函数指针类型
+	//typedef int(*HealthCalcFunc)(const Item35_character_2&);
+	// 另一种函数指针
+	using HealthCalcFunc = function<int(const Item35_character_2&)>;
+
+	explicit Item35_character_2(HealthCalcFunc hcf = defaultHealthCalc) :healthFunc(hcf) {}
+
+	int healthValue() const { return healthFunc(*this); }
+private:
+	HealthCalcFunc healthFunc;
+};
+
+class Item35_player_2 :public Item35_character_2 {
+public:
+	explicit Item35_player_2(HealthCalcFunc hcf = defaultHealthCalc) :Item35_character_2(hcf) {}
+};
+
 
 
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item33_func();
+	Item35_func();
 	
  	getchar();
 }
