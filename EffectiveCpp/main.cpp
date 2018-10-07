@@ -928,12 +928,144 @@ void Item39_func() {
 	// 相等 4
 	cout << "public inherit: " << sizeof(Item39_test1) << endl;
 	cout << "private inherit: " << sizeof(Item39_test2) << endl;
+	
 }
+
+// Item 40
+class Item40_base {
+private:
+	int x;
+};
+
+class Item40_left :public Item40_base {
+
+};
+
+class Item40_right :public Item40_base {
+
+};
+
+class Item40_left_v :virtual public Item40_base {
+
+};
+
+class Item40_right_v :virtual public Item40_base {
+
+};
+
+// 继承了2个int变量
+class Item40_derived :public Item40_left, public Item40_right {
+
+};
+
+// 虚继承情况
+// 字节数12, left和right的vbptr虚表和1个int变量
+class Item40_derived_v :public Item40_left_v, public Item40_right_v {
+
+};
+
+void Item40_func() {
+	cout << "base: " << sizeof(Item40_base) << endl;
+	cout << "left: " << sizeof(Item40_left) << endl;
+	cout << "right: " << sizeof(Item40_right) << endl;
+	cout << "derived: " << sizeof(Item40_derived) << endl;
+	cout << endl;
+	cout << "left_v: " << sizeof(Item40_left_v) << endl;
+	cout << "right_v: " << sizeof(Item40_right_v) << endl;
+	cout << "derived_v: " << sizeof(Item40_derived_v) << endl;
+}
+
+class Item40_Iperson {
+public:
+	virtual ~Item40_Iperson() {}
+	virtual string name() const = 0;
+	virtual string birthDate() const = 0;
+};
+
+class Item40_database_id {};	// 实现不重要
+class Item40_person_info {
+public:
+	explicit Item40_person_info(Item40_database_id pid) {}
+	virtual ~Item40_person_info() {}
+	virtual const char* theName() const { return "name"; }
+	virtual const char* theBirthDate() const { return "birth date"; }
+	virtual const char* valueDelimOpen() const { return "open"; }
+	virtual const char* valueDelimClose() const { return "close"; }
+};
+
+class Item40_Cperson : public Item40_Iperson, private Item40_person_info {
+public:
+	explicit Item40_Cperson(Item40_database_id pid) :Item40_person_info(pid) {}
+	virtual string name() const { return theName(); }
+	virtual string birthDate() const { return theBirthDate(); }
+};
+
+void Item40_func2() {
+	Item40_database_id pid = Item40_database_id();
+	Item40_Cperson c(pid);
+
+	cout << c.name() << endl << c.birthDate() << endl;
+}
+
+// Item 42
+template<class C>
+void Item42_print2nd(const C& container) {
+	if (container.size() >= 2) {
+		// typename 声明C::const_iterator(嵌套从属名称)为typename
+		// 若不做声明, 编译器不会将其认为是类型, 报错
+		typename C::const_iterator iter(container.begin());
+		// 非嵌套不需要声明
+		// 自测加上typename后会报错
+		vector<C> arr;
+		++iter;
+		int value = *iter;
+		cout << value;
+	}
+}
+
+void Item42_func() {
+	vector<int> arr = { 1,2,3,4,5 };
+	Item42_print2nd(arr);
+}
+
+class Item42_nested {
+public:
+	Item42_nested(int x) {
+		cout << x << endl;
+	}
+};
+
+template<class T>
+class Item42_base {
+public:
+	using nested = Item42_nested;
+};
+
+template<class T>
+// 在base classes list中不需要声明(也不能)
+class Item42_derived :public Item42_base<T>::nested {
+public:
+	// 在member init list中不需要声明(也不能)
+	explicit Item42_derived(int x) :Item42_base<T>::nested(x) {
+		// 此处 嵌套从属名称 需要声明为typename
+		typename Item42_base<T>::nested tmp(x * 2);
+
+	}
+};
+
+void Item42_func2() {
+	Item42_derived<int> d(5);
+}
+
+
+
+
 
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item39_func();
-	
+	Item42_func2();
+
+
  	getchar();
 }
