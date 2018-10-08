@@ -1057,6 +1057,64 @@ void Item42_func2() {
 	Item42_derived<int> d(5);
 }
 
+// Item 44
+template<class T>
+class Item44_square_base {
+protected:
+	Item44_square_base(size_t n, T* pMem) :size(n), pData(pMem) {}
+	void invert(size_t m_size) {
+		cout << "base invert: " << m_size << endl;
+	}
+	void set_pdata(T* ptr) {
+		pData = ptr;
+	}
+private:
+	size_t size;
+	T * pData;
+};
+
+template<class T, size_t n>
+class Item44_square :private Item44_square_base<T> {
+public:
+	Item44_square() :Item44_square_base<T>(n, data) {}
+	// 防止derived的invert名称把base中的覆盖住
+	using Item44_square_base<T>::invert;
+	
+	void invert() {
+		// this, 说明可能被继承
+		// 若无this, 编译器会拒绝去模板化的base class中寻找invert
+		// 当然, 前面的using也解决了这个问题, 此处直接invert(n)也是正确的
+		this->invert(n);
+	}
+private:
+	T data[n*n];
+};
+
+void Item44_func() {
+	Item44_square<int, 3> s;
+	s.invert();
+}
+
+// Item 45
+template<class T>
+class Item45_smart_ptr {
+public:
+	// copy construct function
+	// 用于隐式转换
+	template<class U>
+	Item45_smart_ptr(const Item45_smart_ptr<U>& other) :ptr(other.get()) {
+
+	}
+	// 这一块是为了实现转化的方向性, 例如bottom可以转为top, 反之不行
+	// 通过other.get()获得U*指针, 根据内置的转换, U*是否能转为T*来判断
+	T* get() {
+		return ptr;
+	}
+private:
+	T* ptr;	// 内置指针
+};
+
+
 
 
 
@@ -1064,7 +1122,8 @@ void Item42_func2() {
 
 int main() {
 	//1. time_test(function, function)	测试两个函数调用1000次时间的差距
-	Item42_func2();
+	Item44_func();
+
 
 
  	getchar();
